@@ -1,5 +1,5 @@
-[![Travis Build Status](https://img.shields.io/travis/wycats/handlebars.js/master.svg)](https://travis-ci.org/wycats/handlebars.js)
-[![Selenium Test Status](https://saucelabs.com/buildstatus/handlebars)](https://saucelabs.com/u/handlebars)
+[![Travis Build Status](https://img.shields.io/travis/PlanitarInc/handlebars.js/master.svg)](https://travis-ci.org/PlanitarInc/handlebars.js)
+<!-- [![Selenium Test Status](https://saucelabs.com/buildstatus/handlebars)](https://saucelabs.com/u/handlebars) -->
 
 ## ========================================================
 
