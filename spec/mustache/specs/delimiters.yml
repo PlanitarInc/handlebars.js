@@ -11,13 +11,13 @@ tests:
   - name: Pair Behavior
     desc: The equals sign (used on both sides) should permit delimiter changes.
     data: { text: 'Hey!' }
-    template: '{{=<% %>=}}(<%text%>)'
+    template: '<{{=<% %>=}}>(<%text%>)'
     expected: '(Hey!)'
 
   - name: Special Characters
     desc: Characters with special meaning regexen should be valid delimiters.
     data: { text: 'It worked!' }
-    template: '({{=[ ]=}}[text])'
+    template: '(<{{=[ ]=}}>[text])'
     expected: '(It worked!)'
 
   - name: Sections
@@ -25,14 +25,14 @@ tests:
     data: { section: true, data: 'I got interpolated.' }
     template: |
       [
-      {{#section}}
-        {{data}}
+      <{{#section}}>
+        <{{data}}>
         |data|
-      {{/section}}
+      <{{/section}}>
 
-      {{= | | =}}
+      <{{= | | =}}>
       |#section|
-        {{data}}
+        <{{data}}>
         |data|
       |/section|
       ]
@@ -41,7 +41,7 @@ tests:
         I got interpolated.
         |data|
 
-        {{data}}
+        <{{data}}>
         I got interpolated.
       ]
 
@@ -50,14 +50,14 @@ tests:
     data: { section: false, data: 'I got interpolated.' }
     template: |
       [
-      {{^section}}
-        {{data}}
+      <{{^section}}>
+        <{{data}}>
         |data|
-      {{/section}}
+      <{{/section}}>
 
-      {{= | | =}}
+      <{{= | | =}}>
       |^section|
-        {{data}}
+        <{{data}}>
         |data|
       |/section|
       ]
@@ -66,7 +66,7 @@ tests:
         I got interpolated.
         |data|
 
-        {{data}}
+        <{{data}}>
         I got interpolated.
       ]
 
@@ -74,10 +74,10 @@ tests:
     desc: Delimiters set in a parent template should not affect a partial.
     data: { value: 'yes' }
     partials:
-      include: '.{{value}}.'
+      include: '.<{{value}}>.'
     template: |
-      [ {{>include}} ]
-      {{= | | =}}
+      [ <{{>include}}> ]
+      <{{= | | =}}>
       [ |>include| ]
     expected: |
       [ .yes. ]
@@ -87,10 +87,10 @@ tests:
     desc: Delimiters set in a partial should not affect the parent template.
     data: { value: 'yes' }
     partials:
-      include: '.{{value}}. {{= | | =}} .|value|.'
+      include: '.<{{value}}>. <{{= | | =}}> .|value|.'
     template: |
-      [ {{>include}} ]
-      [ .{{value}}.  .|value|. ]
+      [ <{{>include}}> ]
+      [ .<{{value}}>.  .|value|. ]
     expected: |
       [ .yes.  .yes. ]
       [ .yes.  .|value|. ]
@@ -100,13 +100,13 @@ tests:
   - name: Surrounding Whitespace
     desc: Surrounding whitespace should be left untouched.
     data: { }
-    template: '| {{=@ @=}} |'
+    template: '| <{{=@ @=}}> |'
     expected: '|  |'
 
   - name: Outlying Whitespace (Inline)
     desc: Whitespace should be left untouched.
     data: { }
-    template: " | {{=@ @=}}\n"
+    template: " | <{{=@ @=}}>\n"
     expected: " | \n"
 
   - name: Standalone Tag
@@ -114,7 +114,7 @@ tests:
     data: { }
     template: |
       Begin.
-      {{=@ @=}}
+      <{{=@ @=}}>
       End.
     expected: |
       Begin.
@@ -125,7 +125,7 @@ tests:
     data: { }
     template: |
       Begin.
-        {{=@ @=}}
+        <{{=@ @=}}>
       End.
     expected: |
       Begin.
@@ -134,19 +134,19 @@ tests:
   - name: Standalone Line Endings
     desc: '"\r\n" should be considered a newline for standalone tags.'
     data: { }
-    template: "|\r\n{{= @ @ =}}\r\n|"
+    template: "|\r\n<{{= @ @ =}}>\r\n|"
     expected: "|\r\n|"
 
   - name: Standalone Without Previous Line
     desc: Standalone tags should not require a newline to precede them.
     data: { }
-    template: "  {{=@ @=}}\n="
+    template: "  <{{=@ @=}}>\n="
     expected: "="
 
   - name: Standalone Without Newline
     desc: Standalone tags should not require a newline to follow them.
     data: { }
-    template: "=\n  {{=@ @=}}"
+    template: "=\n  <{{=@ @=}}>"
     expected: "=\n"
 
   # Whitespace Insensitivity
@@ -154,5 +154,5 @@ tests:
   - name: Pair with Padding
     desc: Superfluous in-tag whitespace should be ignored.
     data: { }
-    template: '|{{= @   @ =}}|'
+    template: '|<{{= @   @ =}}>|'
     expected: '||'

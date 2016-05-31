@@ -10,13 +10,13 @@ describe('Regressions', function() {
         'title': 'Lazarillo de Tormes'
       }]
     };
-    var string = '{{#books}}{{title}}{{author.name}}{{/books}}';
+    var string = '<{{#books}}><{{title}}><{{author.name}}><{{/books}}>';
     shouldCompileTo(string, data, 'The origin of speciesCharles DarwinLazarillo de Tormes',
                     'Renders without an undefined property error');
   });
 
   it("GH-150: Inverted sections print when they shouldn't", function() {
-    var string = '{{^set}}not set{{/set}} :: {{#set}}set{{/set}}';
+    var string = '<{{^set}}>not set<{{/set}}> :: <{{#set}}>set<{{/set}}>';
 
     shouldCompileTo(string, {}, 'not set :: ', "inverted sections run when property isn't present in context");
     shouldCompileTo(string, {set: undefined}, 'not set :: ', 'inverted sections run when property is undefined');
@@ -25,26 +25,26 @@ describe('Regressions', function() {
   });
 
   it('GH-158: Using array index twice, breaks the template', function() {
-    var string = '{{arr.[0]}}, {{arr.[1]}}';
+    var string = '<{{arr.[0]}}>, <{{arr.[1]}}>';
     var data = { 'arr': [1, 2] };
 
     shouldCompileTo(string, data, '1, 2', 'it works as expected');
   });
 
   it("bug reported by @fat where lambdas weren't being properly resolved", function() {
-    var string = '<strong>This is a slightly more complicated {{thing}}.</strong>.\n'
-        + '{{! Just ignore this business. }}\n'
+    var string = '<strong>This is a slightly more complicated <{{thing}}>.</strong>.\n'
+        + '<{{! Just ignore this business. }}>\n'
         + 'Check this out:\n'
-        + '{{#hasThings}}\n'
+        + '<{{#hasThings}}>\n'
         + '<ul>\n'
-        + '{{#things}}\n'
-        + '<li class={{className}}>{{word}}</li>\n'
-        + '{{/things}}</ul>.\n'
-        + '{{/hasThings}}\n'
-        + '{{^hasThings}}\n'
+        + '<{{#things}}>\n'
+        + '<li class=<{{className}}>><{{word}}></li>\n'
+        + '<{{/things}}></ul>.\n'
+        + '<{{/hasThings}}>\n'
+        + '<{{^hasThings}}>\n'
         + '\n'
         + '<small>Nothing to check out...</small>\n'
-        + '{{/hasThings}}';
+        + '<{{/hasThings}}>';
     var data = {
       thing: function() {
         return 'blah';
@@ -75,15 +75,15 @@ describe('Regressions', function() {
       { name: 'Jane Doe', location: { city: 'New York'} }
     ];
 
-    var template = CompilerContext.compile('{{#.}}{{name}}{{/.}}{{#.}}{{name}}{{/.}}{{#.}}{{name}}{{/.}}');
+    var template = CompilerContext.compile('<{{#.}}><{{name}}><{{/.}}><{{#.}}><{{name}}><{{/.}}><{{#.}}><{{name}}><{{/.}}>');
 
     var result = template(context);
     equals(result, 'John DoeJane DoeJohn DoeJane DoeJohn DoeJane Doe', 'It should output multiple times');
   });
 
   it('GS-428: Nested if else rendering', function() {
-    var succeedingTemplate = '{{#inverse}} {{#blk}} Unexpected {{/blk}} {{else}}  {{#blk}} Expected {{/blk}} {{/inverse}}';
-    var failingTemplate = '{{#inverse}} {{#blk}} Unexpected {{/blk}} {{else}} {{#blk}} Expected {{/blk}} {{/inverse}}';
+    var succeedingTemplate = '<{{#inverse}}> <{{#blk}}> Unexpected <{{/blk}}> <{{else}}>  <{{#blk}}> Expected <{{/blk}}> <{{/inverse}}>';
+    var failingTemplate = '<{{#inverse}}> <{{#blk}}> Unexpected <{{/blk}}> <{{else}}> <{{#blk}}> Expected <{{/blk}}> <{{/inverse}}>';
 
     var helpers = {
       blk: function(block) { return block.fn(''); },
@@ -95,7 +95,7 @@ describe('Regressions', function() {
   });
 
   it('GH-458: Scoped this identifier', function() {
-    shouldCompileTo('{{./foo}}', {foo: 'bar'}, 'bar');
+    shouldCompileTo('<{{./foo}}>', {foo: 'bar'}, 'bar');
   });
 
   it('GH-375: Unicode line terminators', function() {
@@ -106,7 +106,7 @@ describe('Regressions', function() {
     /* eslint-disable no-extend-native */
     Object.prototype[0xD834] = true;
 
-    shouldCompileTo('{{foo}}', { foo: 'bar' }, 'bar');
+    shouldCompileTo('<{{foo}}>', { foo: 'bar' }, 'bar');
 
     delete Object.prototype[0xD834];
     /* eslint-enable no-extend-native */
@@ -114,22 +114,22 @@ describe('Regressions', function() {
 
   it('GH-437: Matching escaping', function() {
     shouldThrow(function() {
-      CompilerContext.compile('{{{a}}');
+      CompilerContext.compile('<{{{a}}>');
     }, Error);
     shouldThrow(function() {
-      CompilerContext.compile('{{a}}}');
+      CompilerContext.compile('<{{a}}}>');
     }, Error);
   });
 
   it('GH-676: Using array in escaping mustache fails', function() {
-    var string = '{{arr}}';
+    var string = '<{{arr}}>';
     var data = { 'arr': [1, 2] };
 
     shouldCompileTo(string, data, data.arr.toString(), 'it works as expected');
   });
 
   it('Mustache man page', function() {
-    var string = 'Hello {{name}}. You have just won ${{value}}!{{#in_ca}} Well, ${{taxed_value}}, after taxes.{{/in_ca}}';
+    var string = 'Hello <{{name}}>. You have just won $<{{value}}>!<{{#in_ca}}> Well, $<{{taxed_value}}>, after taxes.<{{/in_ca}}>';
     var data = {
       'name': 'Chris',
       'value': 10000,
@@ -141,11 +141,11 @@ describe('Regressions', function() {
   });
 
   it('GH-731: zero context rendering', function() {
-    shouldCompileTo('{{#foo}} This is {{bar}} ~ {{/foo}}', {foo: 0, bar: 'OK'}, ' This is  ~ ');
+    shouldCompileTo('<{{#foo}}> This is <{{bar}}> ~ <{{/foo}}>', {foo: 0, bar: 'OK'}, ' This is  ~ ');
   });
 
   it('GH-820: zero pathed rendering', function() {
-    shouldCompileTo('{{foo.bar}}', {foo: 0}, '');
+    shouldCompileTo('<{{foo.bar}}>', {foo: 0}, '');
   });
 
   it('GH-837: undefined values for helpers', function() {
@@ -153,7 +153,7 @@ describe('Regressions', function() {
       str: function(value) { return value + ''; }
     };
 
-    shouldCompileTo('{{str bar.baz}}', [{}, helpers], 'undefined');
+    shouldCompileTo('<{{str bar.baz}}>', [{}, helpers], 'undefined');
   });
 
   it('GH-926: Depths and de-dupe', function() {
@@ -167,7 +167,7 @@ describe('Regressions', function() {
       ]
     };
 
-    var template = CompilerContext.compile('{{#if dater}}{{#each data}}{{../name}}{{/each}}{{else}}{{#each notData}}{{../name}}{{/each}}{{/if}}');
+    var template = CompilerContext.compile('<{{#if dater}}><{{#each data}}><{{../name}}><{{/each}}><{{else}}><{{#each notData}}><{{../name}}><{{/each}}><{{/if}}>');
 
     var result = template(context);
     equals(result, 'foo');
@@ -180,13 +180,13 @@ describe('Regressions', function() {
       'value': 10000
     };
 
-    shouldCompileTo('{{#each data}}Key: {{@key}}\n{{/each}}', {data: data}, 'Key: \nKey: name\nKey: value\n');
+    shouldCompileTo('<{{#each data}}>Key: <{{@key}}>\n<{{/each}}>', {data: data}, 'Key: \nKey: name\nKey: value\n');
   });
 
   it('GH-1054: Should handle simple safe string responses', function() {
-    var root = '{{#wrap}}{{>partial}}{{/wrap}}';
+    var root = '<{{#wrap}}><{{>partial}}><{{/wrap}}>';
     var partials = {
-      partial: '{{#wrap}}<partial>{{/wrap}}'
+      partial: '<{{#wrap}}><partial><{{/wrap}}>'
     };
     var helpers = {
       wrap: function(options) {
@@ -201,7 +201,7 @@ describe('Regressions', function() {
     var array = [];
     array[1] = 'foo';
     array[3] = 'bar';
-    shouldCompileTo('{{#each array}}{{@index}}{{.}}{{/each}}', {array: array}, '1foo3bar');
+    shouldCompileTo('<{{#each array}}><{{@index}}><{{.}}><{{/each}}>', {array: array}, '1foo3bar');
   });
 
   it('GH-1093: Undefined helper context', function() {
@@ -220,29 +220,29 @@ describe('Regressions', function() {
       }
     };
 
-    shouldCompileTo('{{#each obj}}{{{helper}}}{{.}}{{/each}}', [{obj: obj}, helpers], 'notfoundbat');
+    shouldCompileTo('<{{#each obj}}><{{{helper}}}><{{.}}><{{/each}}>', [{obj: obj}, helpers], 'notfoundbat');
   });
 
   it('should support multiple levels of inline partials', function() {
-    var string = '{{#> layout}}{{#*inline "subcontent"}}subcontent{{/inline}}{{/layout}}';
+    var string = '<{{#> layout}}><{{#*inline "subcontent"}}>subcontent<{{/inline}}><{{/layout}}>';
     var partials = {
-      doctype: 'doctype{{> content}}',
-      layout: '{{#> doctype}}{{#*inline "content"}}layout{{> subcontent}}{{/inline}}{{/doctype}}'
+      doctype: 'doctype<{{> content}}>',
+      layout: '<{{#> doctype}}><{{#*inline "content"}}>layout<{{> subcontent}}><{{/inline}}><{{/doctype}}>'
     };
     shouldCompileToWithPartials(string, [{}, {}, partials], true, 'doctypelayoutsubcontent');
   });
   it('GH-1089: should support failover content in multiple levels of inline partials', function() {
-    var string = '{{#> layout}}{{/layout}}';
+    var string = '<{{#> layout}}><{{/layout}}>';
     var partials = {
-      doctype: 'doctype{{> content}}',
-      layout: '{{#> doctype}}{{#*inline "content"}}layout{{#> subcontent}}subcontent{{/subcontent}}{{/inline}}{{/doctype}}'
+      doctype: 'doctype<{{> content}}>',
+      layout: '<{{#> doctype}}><{{#*inline "content"}}>layout<{{#> subcontent}}>subcontent<{{/subcontent}}><{{/inline}}><{{/doctype}}>'
     };
     shouldCompileToWithPartials(string, [{}, {}, partials], true, 'doctypelayoutsubcontent');
   });
   it('GH-1099: should support greater than 3 nested levels of inline partials', function() {
-    var string = '{{#> layout}}Outer{{/layout}}';
+    var string = '<{{#> layout}}>Outer<{{/layout}}>';
     var partials = {
-      layout: '{{#> inner}}Inner{{/inner}}{{> @partial-block }}',
+      layout: '<{{#> inner}}>Inner<{{/inner}}><{{> @partial-block }}>',
       inner: ''
     };
     shouldCompileToWithPartials(string, [{}, {}, partials], true, 'Outer');
@@ -261,19 +261,19 @@ describe('Regressions', function() {
     };
 
     shouldCompileTo(
-      '{{#each array}}\n'
-      + ' 1. IF: {{#if true}}{{../name}}-{{../../name}}-{{../../../name}}{{/if}}\n'
-      + ' 2. MYIF: {{#myif true}}{{../name}}={{../../name}}={{../../../name}}{{/myif}}\n'
-      + '{{/each}}', [obj, helpers],
+      '<{{#each array}}>\n'
+      + ' 1. IF: <{{#if true}}><{{../name}}>-<{{../../name}}>-<{{../../../name}}><{{/if}}>\n'
+      + ' 2. MYIF: <{{#myif true}}><{{../name}}>=<{{../../name}}>=<{{../../../name}}><{{/myif}}>\n'
+      + '<{{/each}}>', [obj, helpers],
       ' 1. IF: John--\n'
       + ' 2. MYIF: John==\n');
   });
 
   it('GH-1186: Support block params for existing programs', function() {
     var string =
-        '{{#*inline "test"}}{{> @partial-block }}{{/inline}}'
-      + '{{#>test }}{{#each listOne as |item|}}{{ item }}{{/each}}{{/test}}'
-      + '{{#>test }}{{#each listTwo as |item|}}{{ item }}{{/each}}{{/test}}';
+        '<{{#*inline "test"}}><{{> @partial-block }}><{{/inline}}>'
+      + '<{{#>test }}><{{#each listOne as |item|}}><{{ item }}><{{/each}}><{{/test}}>'
+      + '<{{#>test }}><{{#each listTwo as |item|}}><{{ item }}><{{/each}}><{{/test}}>';
 
     shouldCompileTo(string, { listOne: ['a'], listTwo: ['b']}, 'ab', '');
   });
@@ -286,6 +286,6 @@ describe('Regressions', function() {
       }
     };
 
-    shouldCompileTo('{{helpa length="foo"}}', [obj, helpers], 'foo');
+    shouldCompileTo('<{{helpa length="foo"}}>', [obj, helpers], 'foo');
   });
 });

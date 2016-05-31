@@ -13,13 +13,13 @@ describe('source-map', function() {
   }
 
   it('should safely include source map info', function() {
-    var template = Handlebars.precompile('{{hello}}', {destName: 'dest.js', srcName: 'src.hbs'});
+    var template = Handlebars.precompile('<{{hello}}>', {destName: 'dest.js', srcName: 'src.hbs'});
 
     equal(!!template.code, true);
     equal(!!template.map, !CompilerContext.browser);
   });
   it('should map source properly', function() {
-    var templateSource = '  b{{hello}}  \n  {{bar}}a {{#block arg hash=(subex 1 subval)}}{{/block}}',
+    var templateSource = '  b<{{hello}}>  \n  <{{bar}}>a <{{#block arg hash=(subex 1 subval)}}><{{/block}}>',
         template = Handlebars.precompile(templateSource, {destName: 'dest.js', srcName: 'src.hbs'});
 
     if (template.map) {

@@ -23,7 +23,7 @@ tests:
         python:  'lambda: "world"'
         clojure: '(fn [] "world")'
         lisp:    '(lambda () "world")'
-    template: "Hello, {{lambda}}!"
+    template: "Hello, <{{lambda}}>!"
     expected: "Hello, world!"
 
   - name: Interpolation - Expansion
@@ -31,14 +31,14 @@ tests:
     data:
       planet: "world"
       lambda: !code
-        ruby:    'proc { "{{planet}}" }'
-        perl:    'sub { "{{planet}}" }'
-        js:      'function() { return "{{planet}}" }'
-        php:     'return "{{planet}}";'
-        python:  'lambda: "{{planet}}"'
-        clojure: '(fn [] "{{planet}}")'
-        lisp:    '(lambda () "{{planet}}")'
-    template: "Hello, {{lambda}}!"
+        ruby:    'proc { "<{{planet}}>" }'
+        perl:    'sub { "<{{planet}}>" }'
+        js:      'function() { return "<{{planet}}>" }'
+        php:     'return "<{{planet}}>";'
+        python:  'lambda: "<{{planet}}>"'
+        clojure: '(fn [] "<{{planet}}>")'
+        lisp:    '(lambda () "<{{planet}}>")'
+    template: "Hello, <{{lambda}}>!"
     expected: "Hello, world!"
 
   - name: Interpolation - Alternate Delimiters
@@ -46,14 +46,14 @@ tests:
     data:
       planet: "world"
       lambda: !code
-        ruby:    'proc { "|planet| => {{planet}}" }'
-        perl:    'sub { "|planet| => {{planet}}" }'
-        js:      'function() { return "|planet| => {{planet}}" }'
-        php:     'return "|planet| => {{planet}}";'
-        python:  'lambda: "|planet| => {{planet}}"'
-        clojure: '(fn [] "|planet| => {{planet}}")'
-        lisp:    '(lambda () "|planet| => {{planet}}")'
-    template: "{{= | | =}}\nHello, (|&lambda|)!"
+        ruby:    'proc { "|planet| => <{{planet}}>" }'
+        perl:    'sub { "|planet| => <{{planet}}>" }'
+        js:      'function() { return "|planet| => <{{planet}}>" }'
+        php:     'return "|planet| => <{{planet}}>";'
+        python:  'lambda: "|planet| => <{{planet}}>"'
+        clojure: '(fn [] "|planet| => <{{planet}}>")'
+        lisp:    '(lambda () "|planet| => <{{planet}}>")'
+    template: "<{{= | | =}}>\nHello, (|&lambda|)!"
     expected: "Hello, (|planet| => world)!"
 
   - name: Interpolation - Multiple Calls
@@ -67,7 +67,7 @@ tests:
         python:  'lambda: globals().update(calls=globals().get("calls",0)+1) or calls'
         clojure: '(def g (atom 0)) (fn [] (swap! g inc))'
         lisp:    '(let ((g 0)) (lambda () (incf g)))'
-    template: '{{lambda}} == {{{lambda}}} == {{lambda}}'
+    template: '<{{lambda}}> == <{{{lambda}}}> == <{{lambda}}>'
     expected: '1 == 2 == 3'
 
   - name: Escaping
@@ -81,7 +81,7 @@ tests:
         python:  'lambda: ">"'
         clojure: '(fn [] ">")'
         lisp:    '(lambda () ">")'
-    template: "<{{lambda}}{{{lambda}}}"
+    template: "<<{{lambda}}><{{{lambda}}}>"
     expected: "<&gt;>"
 
   - name: Section
@@ -89,14 +89,14 @@ tests:
     data:
       x: 'Error!'
       lambda: !code
-        ruby:    'proc { |text| text == "{{x}}" ? "yes" : "no" }'
-        perl:    'sub { $_[0] eq "{{x}}" ? "yes" : "no" }'
-        js:      'function(txt) { return (txt == "{{x}}" ? "yes" : "no") }'
-        php:     'return ($text == "{{x}}") ? "yes" : "no";'
-        python:  'lambda text: text == "{{x}}" and "yes" or "no"'
-        clojure: '(fn [text] (if (= text "{{x}}") "yes" "no"))'
-        lisp:    '(lambda (text) (if (string= text "{{x}}") "yes" "no"))'
-    template: "<{{#lambda}}{{x}}{{/lambda}}>"
+        ruby:    'proc { |text| text == "<{{x}}>" ? "yes" : "no" }'
+        perl:    'sub { $_[0] eq "<{{x}}>" ? "yes" : "no" }'
+        js:      'function(txt) { return (txt == "<{{x}}>" ? "yes" : "no") }'
+        php:     'return ($text == "<{{x}}>") ? "yes" : "no";'
+        python:  'lambda text: text == "<{{x}}>" and "yes" or "no"'
+        clojure: '(fn [text] (if (= text "<{{x}}>") "yes" "no"))'
+        lisp:    '(lambda (text) (if (string= text "<{{x}}>") "yes" "no"))'
+    template: "<<{{#lambda}}><{{x}}><{{/lambda}}>>"
     expected: "<yes>"
 
   - name: Section - Expansion
@@ -104,14 +104,14 @@ tests:
     data:
       planet: "Earth"
       lambda: !code
-        ruby:    'proc { |text| "#{text}{{planet}}#{text}" }'
-        perl:    'sub { $_[0] . "{{planet}}" . $_[0] }'
-        js:      'function(txt) { return txt + "{{planet}}" + txt }'
-        php:     'return $text . "{{planet}}" . $text;'
-        python:  'lambda text: "%s{{planet}}%s" % (text, text)'
-        clojure: '(fn [text] (str text "{{planet}}" text))'
-        lisp:    '(lambda (text) (format nil "~a{{planet}}~a" text text))'
-    template: "<{{#lambda}}-{{/lambda}}>"
+        ruby:    'proc { |text| "#{text}<{{planet}}>#{text}" }'
+        perl:    'sub { $_[0] . "<{{planet}}>" . $_[0] }'
+        js:      'function(txt) { return txt + "<{{planet}}>" + txt }'
+        php:     'return $text . "<{{planet}}>" . $text;'
+        python:  'lambda text: "%s<{{planet}}>%s" % (text, text)'
+        clojure: '(fn [text] (str text "<{{planet}}>" text))'
+        lisp:    '(lambda (text) (format nil "~a<{{planet}}>~a" text text))'
+    template: "<<{{#lambda}}>-<{{/lambda}}>>"
     expected: "<-Earth->"
 
   - name: Section - Alternate Delimiters
@@ -119,15 +119,15 @@ tests:
     data:
       planet: "Earth"
       lambda: !code
-        ruby:    'proc { |text| "#{text}{{planet}} => |planet|#{text}" }'
-        perl:    'sub { $_[0] . "{{planet}} => |planet|" . $_[0] }'
-        js:      'function(txt) { return txt + "{{planet}} => |planet|" + txt }'
-        php:     'return $text . "{{planet}} => |planet|" . $text;'
-        python:  'lambda text: "%s{{planet}} => |planet|%s" % (text, text)'
-        clojure: '(fn [text] (str text "{{planet}} => |planet|" text))'
-        lisp:    '(lambda (text) (format nil "~a{{planet}} => |planet|~a" text text))'
-    template: "{{= | | =}}<|#lambda|-|/lambda|>"
-    expected: "<-{{planet}} => Earth->"
+        ruby:    'proc { |text| "#{text}<{{planet}}> => |planet|#{text}" }'
+        perl:    'sub { $_[0] . "<{{planet}}> => |planet|" . $_[0] }'
+        js:      'function(txt) { return txt + "<{{planet}}> => |planet|" + txt }'
+        php:     'return $text . "<{{planet}}> => |planet|" . $text;'
+        python:  'lambda text: "%s<{{planet}}> => |planet|%s" % (text, text)'
+        clojure: '(fn [text] (str text "<{{planet}}> => |planet|" text))'
+        lisp:    '(lambda (text) (format nil "~a<{{planet}}> => |planet|~a" text text))'
+    template: "<{{= | | =}}><|#lambda|-|/lambda|>"
+    expected: "<-<{{planet}}> => Earth->"
 
   - name: Section - Multiple Calls
     desc: Lambdas used for sections should not be cached.
@@ -140,7 +140,7 @@ tests:
         python:  'lambda text: "__%s__" % (text)'
         clojure: '(fn [text] (str "__" text "__"))'
         lisp:    '(lambda (text) (format nil "__~a__" text))'
-    template: '{{#lambda}}FILE{{/lambda}} != {{#lambda}}LINE{{/lambda}}'
+    template: '<{{#lambda}}>FILE<{{/lambda}}> != <{{#lambda}}>LINE<{{/lambda}}>'
     expected: '__FILE__ != __LINE__'
 
   - name: Inverted Section
@@ -155,5 +155,5 @@ tests:
         python:  'lambda text: 0'
         clojure: '(fn [text] false)'
         lisp:    '(lambda (text) (declare (ignore text)) nil)'
-    template: "<{{^lambda}}{{static}}{{/lambda}}>"
+    template: "<<{{^lambda}}><{{static}}><{{/lambda}}>>"
     expected: "<>"

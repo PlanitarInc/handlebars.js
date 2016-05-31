@@ -1,6 +1,6 @@
 describe('subexpressions', function() {
   it('arg-less helper', function() {
-    var string = '{{foo (bar)}}!';
+    var string = '<{{foo (bar)}}>!';
     var context = {};
     var helpers = {
       foo: function(val) {
@@ -14,7 +14,7 @@ describe('subexpressions', function() {
   });
 
   it('helper w args', function() {
-    var string = '{{blog (equal a b)}}';
+    var string = '<{{blog (equal a b)}}>';
 
     var context = { bar: 'LOL' };
     var helpers = {
@@ -29,7 +29,7 @@ describe('subexpressions', function() {
   });
 
   it('mixed paths and helpers', function() {
-    var string = '{{blog baz.bat (equal a b) baz.bar}}';
+    var string = '<{{blog baz.bat (equal a b) baz.bar}}>';
 
     var context = { bar: 'LOL', baz: {bat: 'foo!', bar: 'bar!'} };
     var helpers = {
@@ -44,7 +44,7 @@ describe('subexpressions', function() {
   });
 
   it('supports much nesting', function() {
-    var string = '{{blog (equal (equal true true) true)}}';
+    var string = '<{{blog (equal (equal true true) true)}}>';
 
     var context = { bar: 'LOL' };
     var helpers = {
@@ -69,15 +69,15 @@ describe('subexpressions', function() {
       }
     };
 
-    shouldCompileTo("{{dash 'abc' (concat a b)}}", [context, helpers], 'abc-ab');
-    shouldCompileTo('{{dash d (concat a b)}}', [context, helpers], 'd-ab');
-    shouldCompileTo('{{dash c.c (concat a b)}}', [context, helpers], 'c-ab');
-    shouldCompileTo('{{dash (concat a b) c.c}}', [context, helpers], 'ab-c');
-    shouldCompileTo('{{dash (concat a e.e) c.c}}', [context, helpers], 'ae-c');
+    shouldCompileTo("<{{dash 'abc' (concat a b)}}>", [context, helpers], 'abc-ab');
+    shouldCompileTo('<{{dash d (concat a b)}}>', [context, helpers], 'd-ab');
+    shouldCompileTo('<{{dash c.c (concat a b)}}>', [context, helpers], 'c-ab');
+    shouldCompileTo('<{{dash (concat a b) c.c}}>', [context, helpers], 'ab-c');
+    shouldCompileTo('<{{dash (concat a e.e) c.c}}>', [context, helpers], 'ae-c');
   });
 
   it('provides each nested helper invocation its own options hash', function() {
-    var string = '{{equal (equal true true) true}}';
+    var string = '<{{equal (equal true true) true}}>';
 
     var lastOptions = null;
     var helpers = {
@@ -93,7 +93,7 @@ describe('subexpressions', function() {
   });
 
   it('with hashes', function() {
-    var string = "{{blog (equal (equal true true) true fun='yes')}}";
+    var string = "<{{blog (equal (equal true true) true fun='yes')}}>";
 
     var context = { bar: 'LOL' };
     var helpers = {
@@ -108,7 +108,7 @@ describe('subexpressions', function() {
   });
 
   it('as hashes', function() {
-    var string = "{{blog fun=(equal (blog fun=1) 'val is 1')}}";
+    var string = "<{{blog fun=(equal (blog fun=1) 'val is 1')}}>";
 
     var helpers = {
       blog: function(options) {
@@ -122,7 +122,7 @@ describe('subexpressions', function() {
   });
 
   it('multiple subexpressions in a hash', function() {
-    var string = '{{input aria-label=(t "Name") placeholder=(t "Example User")}}';
+    var string = '<{{input aria-label=(t "Name") placeholder=(t "Example User")}}>';
 
     var helpers = {
       input: function(options) {
@@ -139,7 +139,7 @@ describe('subexpressions', function() {
   });
 
   it('multiple subexpressions in a hash with context', function() {
-    var string = '{{input aria-label=(t item.field) placeholder=(t item.placeholder)}}';
+    var string = '<{{input aria-label=(t item.field) placeholder=(t item.placeholder)}}>';
 
     var context = {
       item: {
@@ -163,7 +163,7 @@ describe('subexpressions', function() {
   });
 
   it('subexpression functions on the context', function() {
-    var string = '{{foo (bar)}}!';
+    var string = '<{{foo (bar)}}>!';
     var context = {
       bar: function() {
         return 'LOL';
@@ -178,7 +178,7 @@ describe('subexpressions', function() {
   });
 
   it("subexpressions can't just be property lookups", function() {
-    var string = '{{foo (bar)}}!';
+    var string = '<{{foo (bar)}}>!';
     var context = {
       bar: 'LOL'
     };

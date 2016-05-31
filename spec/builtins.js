@@ -1,7 +1,7 @@
 describe('builtin helpers', function() {
   describe('#if', function() {
     it('if', function() {
-      var string = '{{#if goodbye}}GOODBYE {{/if}}cruel {{world}}!';
+      var string = '<{{#if goodbye}}>GOODBYE <{{/if}}>cruel <{{world}}>!';
       shouldCompileTo(string, {goodbye: true, world: 'world'}, 'GOODBYE cruel world!',
                       'if with boolean argument shows the contents when true');
       shouldCompileTo(string, {goodbye: 'dummy', world: 'world'}, 'GOODBYE cruel world!',
@@ -16,13 +16,13 @@ describe('builtin helpers', function() {
                       'if with empty array does not show the contents');
       shouldCompileTo(string, {goodbye: 0, world: 'world'}, 'cruel world!',
                       'if with zero does not show the contents');
-      shouldCompileTo('{{#if goodbye includeZero=true}}GOODBYE {{/if}}cruel {{world}}!',
+      shouldCompileTo('<{{#if goodbye includeZero=true}}>GOODBYE <{{/if}}>cruel <{{world}}>!',
                       {goodbye: 0, world: 'world'}, 'GOODBYE cruel world!',
                       'if with zero does not show the contents');
     });
 
     it('if with function argument', function() {
-      var string = '{{#if goodbye}}GOODBYE {{/if}}cruel {{world}}!';
+      var string = '<{{#if goodbye}}>GOODBYE <{{/if}}>cruel <{{world}}>!';
       shouldCompileTo(string, {goodbye: function() {return true; }, world: 'world'}, 'GOODBYE cruel world!',
                       'if with function shows the contents when function returns true');
       shouldCompileTo(string, {goodbye: function() {return this.world; }, world: 'world'}, 'GOODBYE cruel world!',
@@ -34,30 +34,30 @@ describe('builtin helpers', function() {
     });
 
     it('should not change the depth list', function() {
-      var string = '{{#with foo}}{{#if goodbye}}GOODBYE cruel {{../world}}!{{/if}}{{/with}}';
+      var string = '<{{#with foo}}><{{#if goodbye}}>GOODBYE cruel <{{../world}}>!<{{/if}}><{{/with}}>';
       shouldCompileTo(string, {foo: {goodbye: true}, world: 'world'}, 'GOODBYE cruel world!');
     });
   });
 
   describe('#with', function() {
     it('with', function() {
-      var string = '{{#with person}}{{first}} {{last}}{{/with}}';
+      var string = '<{{#with person}}><{{first}}> <{{last}}><{{/with}}>';
       shouldCompileTo(string, {person: {first: 'Alan', last: 'Johnson'}}, 'Alan Johnson');
     });
     it('with with function argument', function() {
-      var string = '{{#with person}}{{first}} {{last}}{{/with}}';
+      var string = '<{{#with person}}><{{first}}> <{{last}}><{{/with}}>';
       shouldCompileTo(string, {person: function() { return {first: 'Alan', last: 'Johnson'}; }}, 'Alan Johnson');
     });
     it('with with else', function() {
-      var string = '{{#with person}}Person is present{{else}}Person is not present{{/with}}';
+      var string = '<{{#with person}}>Person is present<{{else}}>Person is not present<{{/with}}>';
       shouldCompileTo(string, {}, 'Person is not present');
     });
     it('with provides block parameter', function() {
-      var string = '{{#with person as |foo|}}{{foo.first}} {{last}}{{/with}}';
+      var string = '<{{#with person as |foo|}}><{{foo.first}}> <{{last}}><{{/with}}>';
       shouldCompileTo(string, {person: {first: 'Alan', last: 'Johnson'}}, 'Alan Johnson');
     });
     it('works when data is disabled', function() {
-      var template = CompilerContext.compile('{{#with person as |foo|}}{{foo.first}} {{last}}{{/with}}', {data: false});
+      var template = CompilerContext.compile('<{{#with person as |foo|}}><{{foo.first}}> <{{last}}><{{/with}}>', {data: false});
 
       var result = template({person: {first: 'Alan', last: 'Johnson'}});
       equals(result, 'Alan Johnson');
@@ -72,7 +72,7 @@ describe('builtin helpers', function() {
     });
 
     it('each', function() {
-      var string = '{{#each goodbyes}}{{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{text}}>! <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
       shouldCompileTo(string, hash, 'goodbye! Goodbye! GOODBYE! cruel world!',
                       'each with array argument iterates over the contents when not empty');
@@ -81,21 +81,21 @@ describe('builtin helpers', function() {
     });
 
     it('each without data', function() {
-      var string = '{{#each goodbyes}}{{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{text}}>! <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
       shouldCompileTo(string, [hash,,,, false], 'goodbye! Goodbye! GOODBYE! cruel world!');
 
       hash = {goodbyes: 'cruel', world: 'world'};
-      shouldCompileTo('{{#each .}}{{.}}{{/each}}', [hash,,,, false], 'cruelworld');
+      shouldCompileTo('<{{#each .}}><{{.}}><{{/each}}>', [hash,,,, false], 'cruelworld');
     });
 
     it('each without context', function() {
-      var string = '{{#each goodbyes}}{{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{text}}>! <{{/each}}>cruel <{{world}}>!';
       shouldCompileTo(string, [,,,, ], 'cruel !');
     });
 
     it('each with an object and @key', function() {
-      var string = '{{#each goodbyes}}{{@key}}. {{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{@key}}>. <{{text}}>! <{{/each}}>cruel <{{world}}>!';
 
       function Clazz() {
         this['<b>#1</b>'] = {text: 'goodbye'};
@@ -116,7 +116,7 @@ describe('builtin helpers', function() {
     });
 
     it('each with @index', function() {
-      var string = '{{#each goodbyes}}{{@index}}. {{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{@index}}>. <{{text}}>! <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -126,7 +126,7 @@ describe('builtin helpers', function() {
     });
 
     it('each with nested @index', function() {
-      var string = '{{#each goodbyes}}{{@index}}. {{text}}! {{#each ../goodbyes}}{{@index}} {{/each}}After {{@index}} {{/each}}{{@index}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{@index}}>. <{{text}}>! <{{#each ../goodbyes}}><{{@index}}> <{{/each}}>After <{{@index}}> <{{/each}}><{{@index}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -136,7 +136,7 @@ describe('builtin helpers', function() {
     });
 
     it('each with block params', function() {
-      var string = '{{#each goodbyes as |value index|}}{{index}}. {{value.text}}! {{#each ../goodbyes as |childValue childIndex|}} {{index}} {{childIndex}}{{/each}} After {{index}} {{/each}}{{index}}cruel {{world}}!';
+      var string = '<{{#each goodbyes as |value index|}}><{{index}}>. <{{value.text}}>! <{{#each ../goodbyes as |childValue childIndex|}}> <{{index}}> <{{childIndex}}><{{/each}}> After <{{index}}> <{{/each}}><{{index}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}], world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -146,7 +146,7 @@ describe('builtin helpers', function() {
     });
 
     it('each object with @index', function() {
-      var string = '{{#each goodbyes}}{{@index}}. {{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{@index}}>. <{{text}}>! <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: {'a': {text: 'goodbye'}, b: {text: 'Goodbye'}, c: {text: 'GOODBYE'}}, world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -157,7 +157,7 @@ describe('builtin helpers', function() {
 
 
     it('each with @first', function() {
-      var string = '{{#each goodbyes}}{{#if @first}}{{text}}! {{/if}}{{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{#if @first}}><{{text}}>! <{{/if}}><{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -167,7 +167,7 @@ describe('builtin helpers', function() {
     });
 
     it('each with nested @first', function() {
-      var string = '{{#each goodbyes}}({{#if @first}}{{text}}! {{/if}}{{#each ../goodbyes}}{{#if @first}}{{text}}!{{/if}}{{/each}}{{#if @first}} {{text}}!{{/if}}) {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}>(<{{#if @first}}><{{text}}>! <{{/if}}><{{#each ../goodbyes}}><{{#if @first}}><{{text}}>!<{{/if}}><{{/each}}><{{#if @first}}> <{{text}}>!<{{/if}}>) <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -177,7 +177,7 @@ describe('builtin helpers', function() {
     });
 
     it('each object with @first', function() {
-      var string = '{{#each goodbyes}}{{#if @first}}{{text}}! {{/if}}{{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{#if @first}}><{{text}}>! <{{/if}}><{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: {'foo': {text: 'goodbye'}, bar: {text: 'Goodbye'}}, world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -187,7 +187,7 @@ describe('builtin helpers', function() {
     });
 
     it('each with @last', function() {
-      var string = '{{#each goodbyes}}{{#if @last}}{{text}}! {{/if}}{{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{#if @last}}><{{text}}>! <{{/if}}><{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -197,7 +197,7 @@ describe('builtin helpers', function() {
     });
 
     it('each object with @last', function() {
-      var string = '{{#each goodbyes}}{{#if @last}}{{text}}! {{/if}}{{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{#if @last}}><{{text}}>! <{{/if}}><{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: {'foo': {text: 'goodbye'}, bar: {text: 'Goodbye'}}, world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -207,7 +207,7 @@ describe('builtin helpers', function() {
     });
 
     it('each with nested @last', function() {
-      var string = '{{#each goodbyes}}({{#if @last}}{{text}}! {{/if}}{{#each ../goodbyes}}{{#if @last}}{{text}}!{{/if}}{{/each}}{{#if @last}} {{text}}!{{/if}}) {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}>(<{{#if @last}}><{{text}}>! <{{/if}}><{{#each ../goodbyes}}><{{#if @last}}><{{text}}>!<{{/if}}><{{/each}}><{{#if @last}}> <{{text}}>!<{{/if}}>) <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}], world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -217,7 +217,7 @@ describe('builtin helpers', function() {
     });
 
     it('each with function argument', function() {
-      var string = '{{#each goodbyes}}{{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{text}}>! <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: function() { return [{text: 'goodbye'}, {text: 'Goodbye'}, {text: 'GOODBYE'}]; }, world: 'world'};
       shouldCompileTo(string, hash, 'goodbye! Goodbye! GOODBYE! cruel world!',
                 'each with array function argument iterates over the contents when not empty');
@@ -226,7 +226,7 @@ describe('builtin helpers', function() {
     });
 
     it('each object when last key is an empty string', function() {
-      var string = '{{#each goodbyes}}{{@index}}. {{text}}! {{/each}}cruel {{world}}!';
+      var string = '<{{#each goodbyes}}><{{@index}}>. <{{text}}>! <{{/each}}>cruel <{{world}}>!';
       var hash = {goodbyes: {'a': {text: 'goodbye'}, b: {text: 'Goodbye'}, '': {text: 'GOODBYE'}}, world: 'world'};
 
       var template = CompilerContext.compile(string);
@@ -236,7 +236,7 @@ describe('builtin helpers', function() {
     });
 
     it('data passed to helpers', function() {
-      var string = '{{#each letters}}{{this}}{{detectDataInsideEach}}{{/each}}';
+      var string = '<{{#each letters}}><{{this}}><{{detectDataInsideEach}}><{{/each}}>';
       var hash = {letters: ['a', 'b', 'c']};
 
       var template = CompilerContext.compile(string);
@@ -250,7 +250,7 @@ describe('builtin helpers', function() {
 
     it('each on implicit context', function() {
       shouldThrow(function() {
-        var template = CompilerContext.compile('{{#each}}{{text}}! {{/each}}cruel world!');
+        var template = CompilerContext.compile('<{{#each}}><{{text}}>! <{{/each}}>cruel world!');
         template({});
       }, handlebarsEnv.Exception, 'Must pass iterator to #each');
     });
@@ -277,7 +277,7 @@ describe('builtin helpers', function() {
     });
 
     it('should call logger at default level', function() {
-      var string = '{{log blah}}';
+      var string = '<{{log blah}}>';
       var hash = { blah: 'whee' };
 
       var levelArg, logArg;
@@ -291,7 +291,7 @@ describe('builtin helpers', function() {
       equals('whee', logArg, "should call log with 'whee'");
     });
     it('should call logger at data level', function() {
-      var string = '{{log blah}}';
+      var string = '<{{log blah}}>';
       var hash = { blah: 'whee' };
 
       var levelArg, logArg;
@@ -305,7 +305,7 @@ describe('builtin helpers', function() {
       equals('whee', logArg);
     });
     it('should output to info', function() {
-      var string = '{{log blah}}';
+      var string = '<{{log blah}}>';
       var hash = { blah: 'whee' };
       var called;
 
@@ -322,7 +322,7 @@ describe('builtin helpers', function() {
       equals(true, called);
     });
     it('should log at data level', function() {
-      var string = '{{log blah}}';
+      var string = '<{{log blah}}>';
       var hash = { blah: 'whee' };
       var called;
 
@@ -335,7 +335,7 @@ describe('builtin helpers', function() {
       equals(true, called);
     });
     it('should handle missing logger', function() {
-      var string = '{{log blah}}';
+      var string = '<{{log blah}}>';
       var hash = { blah: 'whee' },
           called = false;
 
@@ -350,7 +350,7 @@ describe('builtin helpers', function() {
     });
 
     it('should handle string log levels', function() {
-      var string = '{{log blah}}';
+      var string = '<{{log blah}}>';
       var hash = { blah: 'whee' };
       var called;
 
@@ -368,7 +368,7 @@ describe('builtin helpers', function() {
       equals(true, called);
     });
     it('should handle hash log levels', function() {
-      var string = '{{log blah level="error"}}';
+      var string = '<{{log blah level="error"}}>';
       var hash = { blah: 'whee' };
       var called;
 
@@ -381,7 +381,7 @@ describe('builtin helpers', function() {
       equals(true, called);
     });
     it('should handle hash log levels', function() {
-      var string = '{{log blah level="debug"}}';
+      var string = '<{{log blah level="debug"}}>';
       var hash = { blah: 'whee' };
       var called = false;
 
@@ -394,7 +394,7 @@ describe('builtin helpers', function() {
       equals(false, called);
     });
     it('should pass multiple log arguments', function() {
-      var string = '{{log blah "foo" 1}}';
+      var string = '<{{log blah "foo" 1}}>';
       var hash = { blah: 'whee' };
       var called;
 
@@ -414,7 +414,7 @@ describe('builtin helpers', function() {
 
   describe('#lookup', function() {
     it('should lookup arbitrary content', function() {
-      var string = '{{#each goodbyes}}{{lookup ../data .}}{{/each}}',
+      var string = '<{{#each goodbyes}}><{{lookup ../data .}}><{{/each}}>',
           hash = {goodbyes: [0, 1], data: ['foo', 'bar']};
 
       var template = CompilerContext.compile(string);
@@ -423,7 +423,7 @@ describe('builtin helpers', function() {
       equal(result, 'foobar');
     });
     it('should not fail on undefined value', function() {
-      var string = '{{#each goodbyes}}{{lookup ../bar .}}{{/each}}',
+      var string = '<{{#each goodbyes}}><{{lookup ../bar .}}><{{/each}}>',
           hash = {goodbyes: [0, 1], data: ['foo', 'bar']};
 
       var template = CompilerContext.compile(string);

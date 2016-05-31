@@ -7,10 +7,10 @@ describe('Visitor', function() {
     // Simply run the thing and make sure it does not fail and that all of the
     // stub methods are executed
     var visitor = new Handlebars.Visitor();
-    visitor.accept(Handlebars.parse('{{foo}}{{#foo (bar 1 "1" true undefined null) foo=@data}}{{!comment}}{{> bar }} {{/foo}}'));
-    visitor.accept(Handlebars.parse('{{#> bar }} {{/bar}}'));
-    visitor.accept(Handlebars.parse('{{#* bar }} {{/bar}}'));
-    visitor.accept(Handlebars.parse('{{* bar }}'));
+    visitor.accept(Handlebars.parse('<{{foo}}><{{#foo (bar 1 "1" true undefined null) foo=@data}}><{{!comment}}><{{> bar }}> <{{/foo}}>'));
+    visitor.accept(Handlebars.parse('<{{#> bar }}> <{{/bar}}>'));
+    visitor.accept(Handlebars.parse('<{{#* bar }}> <{{/bar}}>'));
+    visitor.accept(Handlebars.parse('<{{* bar }}>'));
   });
 
   it('should traverse to stubs', function() {
@@ -40,7 +40,7 @@ describe('Visitor', function() {
       equal(comment.value, 'comment');
     };
 
-    visitor.accept(Handlebars.parse('{{#foo.bar (foo.bar 1 "2" true) foo=@foo.bar}}{{!comment}}{{> bar }} {{/foo.bar}}'));
+    visitor.accept(Handlebars.parse('<{{#foo.bar (foo.bar 1 "2" true) foo=@foo.bar}}><{{!comment}}><{{> bar }}> <{{/foo.bar}}>'));
   });
 
   describe('mutating', function() {
@@ -53,17 +53,17 @@ describe('Visitor', function() {
           return {type: 'NumberLiteral', value: 42, loc: string.loc};
         };
 
-        var ast = Handlebars.parse('{{foo foo="foo"}}');
+        var ast = Handlebars.parse('<{{foo foo="foo"}}>');
         visitor.accept(ast);
-        equals(Handlebars.print(ast), '{{ PATH:foo [] HASH{foo=NUMBER{42}} }}\n');
+        equals(Handlebars.print(ast), '<{{ PATH:foo [] HASH{foo=NUMBER{42}} }}>\n');
       });
       it('should treat undefined resonse as identity', function() {
         var visitor = new Handlebars.Visitor();
         visitor.mutating = true;
 
-        var ast = Handlebars.parse('{{foo foo=42}}');
+        var ast = Handlebars.parse('<{{foo foo=42}}>');
         visitor.accept(ast);
-        equals(Handlebars.print(ast), '{{ PATH:foo [] HASH{foo=NUMBER{42}} }}\n');
+        equals(Handlebars.print(ast), '<{{ PATH:foo [] HASH{foo=NUMBER{42}} }}>\n');
       });
       it('should remove false responses', function() {
         var visitor = new Handlebars.Visitor();
@@ -73,9 +73,9 @@ describe('Visitor', function() {
           return false;
         };
 
-        var ast = Handlebars.parse('{{foo foo=42}}');
+        var ast = Handlebars.parse('<{{foo foo=42}}>');
         visitor.accept(ast);
-        equals(Handlebars.print(ast), '{{ PATH:foo [] }}\n');
+        equals(Handlebars.print(ast), '<{{ PATH:foo [] }}>\n');
       });
       it('should throw when removing required values', function() {
         shouldThrow(function() {
@@ -86,7 +86,7 @@ describe('Visitor', function() {
             return false;
           };
 
-          var ast = Handlebars.parse('{{foo 42}}');
+          var ast = Handlebars.parse('<{{foo 42}}>');
           visitor.accept(ast);
         }, Handlebars.Exception, 'MustacheStatement requires path');
       });
@@ -99,7 +99,7 @@ describe('Visitor', function() {
             return {};
           };
 
-          var ast = Handlebars.parse('{{foo 42}}');
+          var ast = Handlebars.parse('<{{foo 42}}>');
           visitor.accept(ast);
         }, Handlebars.Exception, 'Unexpected node type "undefined" found when accepting path on MustacheStatement');
       });
@@ -113,17 +113,17 @@ describe('Visitor', function() {
           return {type: 'NumberLiteral', value: 42, loc: string.locInfo};
         };
 
-        var ast = Handlebars.parse('{{foo "foo"}}');
+        var ast = Handlebars.parse('<{{foo "foo"}}>');
         visitor.accept(ast);
-        equals(Handlebars.print(ast), '{{ PATH:foo [NUMBER{42}] }}\n');
+        equals(Handlebars.print(ast), '<{{ PATH:foo [NUMBER{42}] }}>\n');
       });
       it('should treat undefined resonse as identity', function() {
         var visitor = new Handlebars.Visitor();
         visitor.mutating = true;
 
-        var ast = Handlebars.parse('{{foo 42}}');
+        var ast = Handlebars.parse('<{{foo 42}}>');
         visitor.accept(ast);
-        equals(Handlebars.print(ast), '{{ PATH:foo [NUMBER{42}] }}\n');
+        equals(Handlebars.print(ast), '<{{ PATH:foo [NUMBER{42}] }}>\n');
       });
       it('should remove false responses', function() {
         var visitor = new Handlebars.Visitor();
@@ -133,9 +133,9 @@ describe('Visitor', function() {
           return false;
         };
 
-        var ast = Handlebars.parse('{{foo 42}}');
+        var ast = Handlebars.parse('<{{foo 42}}>');
         visitor.accept(ast);
-        equals(Handlebars.print(ast), '{{ PATH:foo [] }}\n');
+        equals(Handlebars.print(ast), '<{{ PATH:foo [] }}>\n');
       });
     });
   });

@@ -11,20 +11,20 @@ describe('compiler', function() {
 
     it('should treat as equal', function() {
       equal(compile('foo').equals(compile('foo')), true);
-      equal(compile('{{foo}}').equals(compile('{{foo}}')), true);
-      equal(compile('{{foo.bar}}').equals(compile('{{foo.bar}}')), true);
-      equal(compile('{{foo.bar baz "foo" true false bat=1}}').equals(compile('{{foo.bar baz "foo" true false bat=1}}')), true);
-      equal(compile('{{foo.bar (baz bat=1)}}').equals(compile('{{foo.bar (baz bat=1)}}')), true);
-      equal(compile('{{#foo}} {{/foo}}').equals(compile('{{#foo}} {{/foo}}')), true);
+      equal(compile('<{{foo}}>').equals(compile('<{{foo}}>')), true);
+      equal(compile('<{{foo.bar}}>').equals(compile('<{{foo.bar}}>')), true);
+      equal(compile('<{{foo.bar baz "foo" true false bat=1}}>').equals(compile('<{{foo.bar baz "foo" true false bat=1}}>')), true);
+      equal(compile('<{{foo.bar (baz bat=1)}}>').equals(compile('<{{foo.bar (baz bat=1)}}>')), true);
+      equal(compile('<{{#foo}}> <{{/foo}}>').equals(compile('<{{#foo}}> <{{/foo}}>')), true);
     });
     it('should treat as not equal', function() {
       equal(compile('foo').equals(compile('bar')), false);
-      equal(compile('{{foo}}').equals(compile('{{bar}}')), false);
-      equal(compile('{{foo.bar}}').equals(compile('{{bar.bar}}')), false);
-      equal(compile('{{foo.bar baz bat=1}}').equals(compile('{{foo.bar bar bat=1}}')), false);
-      equal(compile('{{foo.bar (baz bat=1)}}').equals(compile('{{foo.bar (bar bat=1)}}')), false);
-      equal(compile('{{#foo}} {{/foo}}').equals(compile('{{#bar}} {{/bar}}')), false);
-      equal(compile('{{#foo}} {{/foo}}').equals(compile('{{#foo}} {{foo}}{{/foo}}')), false);
+      equal(compile('<{{foo}}>').equals(compile('<{{bar}}>')), false);
+      equal(compile('<{{foo.bar}}>').equals(compile('<{{bar.bar}}>')), false);
+      equal(compile('<{{foo.bar baz bat=1}}>').equals(compile('<{{foo.bar bar bat=1}}>')), false);
+      equal(compile('<{{foo.bar (baz bat=1)}}>').equals(compile('<{{foo.bar (bar bat=1)}}>')), false);
+      equal(compile('<{{#foo}}> <{{/foo}}>').equals(compile('<{{#bar}}> <{{/bar}}>')), false);
+      equal(compile('<{{#foo}}> <{{/foo}}>').equals(compile('<{{#foo}}> <{{foo}}><{{/foo}}>')), false);
     });
   });
 

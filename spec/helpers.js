@@ -1,6 +1,6 @@
 describe('helpers', function() {
   it('helper with complex lookup$', function() {
-    var string = '{{#goodbyes}}{{{link ../prefix}}}{{/goodbyes}}';
+    var string = '<{{#goodbyes}}><{{{link ../prefix}}}><{{/goodbyes}}>';
     var hash = {prefix: '/root', goodbyes: [{text: 'Goodbye', url: 'goodbye'}]};
     var helpers = {link: function(prefix) {
       return '<a href="' + prefix + '/' + this.url + '">' + this.text + '</a>';
@@ -9,37 +9,37 @@ describe('helpers', function() {
   });
 
   it('helper for raw block gets raw content', function() {
-    var string = '{{{{raw}}}} {{test}} {{{{/raw}}}}';
+    var string = '<{{{{raw}}}}> <{{test}}> <{{{{/raw}}}}>';
     var hash = { test: 'hello' };
     var helpers = { raw: function(options) {
         return options.fn();
     } };
-    shouldCompileTo(string, [hash, helpers], ' {{test}} ',
+    shouldCompileTo(string, [hash, helpers], ' <{{test}}> ',
                     'raw block helper gets raw content');
   });
 
   it('helper for raw block gets parameters', function() {
-    var string = '{{{{raw 1 2 3}}}} {{test}} {{{{/raw}}}}';
+    var string = '<{{{{raw 1 2 3}}}}> <{{test}}> <{{{{/raw}}}}>';
     var hash = { test: 'hello' };
     var helpers = { raw: function(a, b, c, options) {
         return options.fn() + a + b + c;
     } };
-    shouldCompileTo(string, [hash, helpers], ' {{test}} 123',
+    shouldCompileTo(string, [hash, helpers], ' <{{test}}> 123',
                     'raw block helper gets raw content');
   });
 
   it('helper for nested raw block gets raw content', function() {
-    var string = '{{{{a}}}} {{{{b}}}} {{{{/b}}}} {{{{/a}}}}';
+    var string = '<{{{{a}}}}> <{{{{b}}}}> <{{{{/b}}}}> <{{{{/a}}}}>';
     var helpers = {
         a: function(options) {
           return options.fn();
       }
     };
-    shouldCompileTo(string, [{}, helpers], ' {{{{b}}}} {{{{/b}}}} ', 'raw block helper should get nested raw block as raw content');
+    shouldCompileTo(string, [{}, helpers], ' <{{{{b}}}}> <{{{{/b}}}}> ', 'raw block helper should get nested raw block as raw content');
   });
 
   it('helper block with identical context', function() {
-    var string = '{{#goodbyes}}{{name}}{{/goodbyes}}';
+    var string = '<{{#goodbyes}}><{{name}}><{{/goodbyes}}>';
     var hash = {name: 'Alan'};
     var helpers = {goodbyes: function(options) {
       var out = '';
@@ -52,7 +52,7 @@ describe('helpers', function() {
     shouldCompileTo(string, [hash, helpers], 'Goodbye Alan! goodbye Alan! GOODBYE Alan! ');
   });
   it('helper block with complex lookup expression', function() {
-    var string = '{{#goodbyes}}{{../name}}{{/goodbyes}}';
+    var string = '<{{#goodbyes}}><{{../name}}><{{/goodbyes}}>';
     var hash = {name: 'Alan'};
     var helpers = {goodbyes: function(options) {
       var out = '';
@@ -66,7 +66,7 @@ describe('helpers', function() {
   });
 
   it('helper with complex lookup and nested template', function() {
-    var string = '{{#goodbyes}}{{#link ../prefix}}{{text}}{{/link}}{{/goodbyes}}';
+    var string = '<{{#goodbyes}}><{{#link ../prefix}}><{{text}}><{{/link}}><{{/goodbyes}}>';
     var hash = {prefix: '/root', goodbyes: [{text: 'Goodbye', url: 'goodbye'}]};
     var helpers = {link: function(prefix, options) {
         return '<a href="' + prefix + '/' + this.url + '">' + options.fn(this) + '</a>';
@@ -75,7 +75,7 @@ describe('helpers', function() {
   });
 
   it('helper with complex lookup and nested template in VM+Compiler', function() {
-    var string = '{{#goodbyes}}{{#link ../prefix}}{{text}}{{/link}}{{/goodbyes}}';
+    var string = '<{{#goodbyes}}><{{#link ../prefix}}><{{text}}><{{/link}}><{{/goodbyes}}>';
     var hash = {prefix: '/root', goodbyes: [{text: 'Goodbye', url: 'goodbye'}]};
     var helpers = {link: function(prefix, options) {
         return '<a href="' + prefix + '/' + this.url + '">' + options.fn(this) + '</a>';
@@ -83,12 +83,12 @@ describe('helpers', function() {
     shouldCompileToWithPartials(string, [hash, helpers], true, '<a href="/root/goodbye">Goodbye</a>');
   });
   it('helper returning undefined value', function() {
-    shouldCompileTo(' {{nothere}}', [{}, {nothere: function() {}}], ' ');
-    shouldCompileTo(' {{#nothere}}{{/nothere}}', [{}, {nothere: function() {}}], ' ');
+    shouldCompileTo(' <{{nothere}}>', [{}, {nothere: function() {}}], ' ');
+    shouldCompileTo(' <{{#nothere}}><{{/nothere}}>', [{}, {nothere: function() {}}], ' ');
   });
 
   it('block helper', function() {
-    var string = '{{#goodbyes}}{{text}}! {{/goodbyes}}cruel {{world}}!';
+    var string = '<{{#goodbyes}}><{{text}}>! <{{/goodbyes}}>cruel <{{world}}>!';
     var template = CompilerContext.compile(string);
 
     var result = template({world: 'world'}, { helpers: {goodbyes: function(options) { return options.fn({text: 'GOODBYE'}); }}});
@@ -96,7 +96,7 @@ describe('helpers', function() {
   });
 
   it('block helper staying in the same context', function() {
-    var string = '{{#form}}<p>{{name}}</p>{{/form}}';
+    var string = '<{{#form}}><p><{{name}}></p><{{/form}}>';
     var template = CompilerContext.compile(string);
 
     var result = template({name: 'Yehuda'}, {helpers: {form: function(options) { return '<form>' + options.fn(this) + '</form>'; } }});
@@ -104,7 +104,7 @@ describe('helpers', function() {
   });
 
   it('block helper should have context in this', function() {
-    var source = '<ul>{{#people}}<li>{{#link}}{{name}}{{/link}}</li>{{/people}}</ul>';
+    var source = '<ul><{{#people}}><li><{{#link}}><{{name}}><{{/link}}></li><{{/people}}></ul>';
     function link(options) {
       return '<a href="/people/' + this.id + '">' + options.fn(this) + '</a>';
     }
@@ -117,11 +117,11 @@ describe('helpers', function() {
   });
 
   it('block helper for undefined value', function() {
-    shouldCompileTo("{{#empty}}shouldn't render{{/empty}}", {}, '');
+    shouldCompileTo("<{{#empty}}>shouldn't render<{{/empty}}>", {}, '');
   });
 
   it('block helper passing a new context', function() {
-    var string = '{{#form yehuda}}<p>{{name}}</p>{{/form}}';
+    var string = '<{{#form yehuda}}><p><{{name}}></p><{{/form}}>';
     var template = CompilerContext.compile(string);
 
     var result = template({yehuda: {name: 'Yehuda'}}, { helpers: {form: function(context, options) { return '<form>' + options.fn(context) + '</form>'; }}});
@@ -129,7 +129,7 @@ describe('helpers', function() {
   });
 
   it('block helper passing a complex path context', function() {
-    var string = '{{#form yehuda/cat}}<p>{{name}}</p>{{/form}}';
+    var string = '<{{#form yehuda/cat}}><p><{{name}}></p><{{/form}}>';
     var template = CompilerContext.compile(string);
 
     var result = template({yehuda: {name: 'Yehuda', cat: {name: 'Harold'}}}, { helpers: {form: function(context, options) { return '<form>' + options.fn(context) + '</form>'; }}});
@@ -137,7 +137,7 @@ describe('helpers', function() {
   });
 
   it('nested block helpers', function() {
-    var string = '{{#form yehuda}}<p>{{name}}</p>{{#link}}Hello{{/link}}{{/form}}';
+    var string = '<{{#form yehuda}}><p><{{name}}></p><{{#link}}>Hello<{{/link}}><{{/form}}>';
     var template = CompilerContext.compile(string);
 
     var result = template({
@@ -152,7 +152,7 @@ describe('helpers', function() {
   });
 
   it('block helper inverted sections', function() {
-    var string = '{{#list people}}{{name}}{{^}}<em>Nobody\'s here</em>{{/list}}';
+    var string = '<{{#list people}}><{{name}}><{{^}}><em>Nobody\'s here</em><{{/list}}>';
     function list(context, options) {
       if (context.length > 0) {
         var out = '<ul>';
@@ -175,7 +175,7 @@ describe('helpers', function() {
       message: 'Nobody\'s here'
     };
 
-    var messageString = '{{#list people}}Hello{{^}}{{message}}{{/list}}';
+    var messageString = '<{{#list people}}>Hello<{{^}}><{{message}}><{{/list}}>';
 
     // the meaning here may be kind of hard to catch, but list.not is always called,
     // so we should see the output of both
@@ -196,29 +196,29 @@ describe('helpers', function() {
         return 'fail';
       }
     };
-    shouldCompileTo('{{./helper 1}}', [hash, helpers], 'winning');
-    shouldCompileTo('{{hash/helper 1}}', [hash, helpers], 'winning');
+    shouldCompileTo('<{{./helper 1}}>', [hash, helpers], 'winning');
+    shouldCompileTo('<{{hash/helper 1}}>', [hash, helpers], 'winning');
   });
 
   describe('helpers hash', function() {
     it('providing a helpers hash', function() {
-      shouldCompileTo('Goodbye {{cruel}} {{world}}!', [{cruel: 'cruel'}, {world: function() { return 'world'; }}], 'Goodbye cruel world!',
+      shouldCompileTo('Goodbye <{{cruel}}> <{{world}}>!', [{cruel: 'cruel'}, {world: function() { return 'world'; }}], 'Goodbye cruel world!',
                       'helpers hash is available');
 
-      shouldCompileTo('Goodbye {{#iter}}{{cruel}} {{world}}{{/iter}}!', [{iter: [{cruel: 'cruel'}]}, {world: function() { return 'world'; }}],
+      shouldCompileTo('Goodbye <{{#iter}}><{{cruel}}> <{{world}}><{{/iter}}>!', [{iter: [{cruel: 'cruel'}]}, {world: function() { return 'world'; }}],
                       'Goodbye cruel world!', 'helpers hash is available inside other blocks');
     });
 
     it('in cases of conflict, helpers win', function() {
-      shouldCompileTo('{{{lookup}}}', [{lookup: 'Explicit'}, {lookup: function() { return 'helpers'; }}], 'helpers',
+      shouldCompileTo('<{{{lookup}}}>', [{lookup: 'Explicit'}, {lookup: function() { return 'helpers'; }}], 'helpers',
                       'helpers hash has precedence escaped expansion');
-      shouldCompileTo('{{lookup}}', [{lookup: 'Explicit'}, {lookup: function() { return 'helpers'; }}], 'helpers',
+      shouldCompileTo('<{{lookup}}>', [{lookup: 'Explicit'}, {lookup: function() { return 'helpers'; }}], 'helpers',
                       'helpers hash has precedence simple expansion');
     });
 
     it('the helpers hash is available is nested contexts', function() {
       shouldCompileTo(
-        '{{#outer}}{{#inner}}{{helper}}{{/inner}}{{/outer}}',
+        '<{{#outer}}><{{#inner}}><{{helper}}><{{/inner}}><{{/outer}}>',
         [
           {'outer': {'inner': {'unused': []}}},
           {'helper': function() { return 'helper'; }}
@@ -231,7 +231,7 @@ describe('helpers', function() {
       handlebarsEnv.registerHelper('test_helper', function() { return 'found it!'; });
 
       shouldCompileTo(
-        '{{test_helper}} {{#if cruel}}Goodbye {{cruel}} {{world}}!{{/if}}', [
+        '<{{test_helper}}> <{{#if cruel}}>Goodbye <{{cruel}}> <{{world}}>!<{{/if}}>', [
           {cruel: 'cruel'},
           {world: function() { return 'world!'; }}
         ],
@@ -261,7 +261,7 @@ describe('helpers', function() {
       });
 
       shouldCompileTo(
-        '{{testHelper}} {{#if cruel}}Goodbye {{cruel}} {{world}}!{{/if}}',
+        '<{{testHelper}}> <{{#if cruel}}>Goodbye <{{cruel}}> <{{world}}>!<{{/if}}>',
         [{cruel: 'cruel'}],
         'found it! Goodbye cruel world!!');
     });
@@ -276,7 +276,7 @@ describe('helpers', function() {
   });
 
   it('decimal number literals work', function() {
-    var string = 'Message: {{hello -1.2 1.2}}';
+    var string = 'Message: <{{hello -1.2 1.2}}>';
     var helpers = {hello: function(times, times2) {
       if (typeof times !== 'number') { times = 'NaN'; }
       if (typeof times2 !== 'number') { times2 = 'NaN'; }
@@ -286,7 +286,7 @@ describe('helpers', function() {
   });
 
   it('negative number literals work', function() {
-    var string = 'Message: {{hello -12}}';
+    var string = 'Message: <{{hello -12}}>';
     var helpers = {hello: function(times) {
       if (typeof times !== 'number') { times = 'NaN'; }
       return 'Hello ' + times + ' times';
@@ -296,7 +296,7 @@ describe('helpers', function() {
 
   describe('String literal parameters', function() {
     it('simple literals work', function() {
-      var string = 'Message: {{hello "world" 12 true false}}';
+      var string = 'Message: <{{hello "world" 12 true false}}>';
       var helpers = {hello: function(param, times, bool1, bool2) {
         if (typeof times !== 'number') { times = 'NaN'; }
         if (typeof bool1 !== 'boolean') { bool1 = 'NaB'; }
@@ -307,27 +307,27 @@ describe('helpers', function() {
     });
 
     it('using a quote in the middle of a parameter raises an error', function() {
-      var string = 'Message: {{hello wo"rld"}}';
+      var string = 'Message: <{{hello wo"rld"}}>';
       shouldThrow(function() {
         CompilerContext.compile(string);
       }, Error);
     });
 
     it('escaping a String is possible', function() {
-      var string = 'Message: {{{hello "\\"world\\""}}}';
+      var string = 'Message: <{{{hello "\\"world\\""}}}>';
       var helpers = {hello: function(param) { return 'Hello ' + param; }};
       shouldCompileTo(string, [{}, helpers], 'Message: Hello "world"', 'template with an escaped String literal');
     });
 
     it("it works with ' marks", function() {
-      var string = 'Message: {{{hello "Alan\'s world"}}}';
+      var string = 'Message: <{{{hello "Alan\'s world"}}}>';
       var helpers = {hello: function(param) { return 'Hello ' + param; }};
       shouldCompileTo(string, [{}, helpers], "Message: Hello Alan's world", "template with a ' mark");
     });
   });
 
   it('negative number literals work', function() {
-    var string = 'Message: {{hello -12}}';
+    var string = 'Message: <{{hello -12}}>';
     var helpers = {hello: function(times) {
       if (typeof times !== 'number') { times = 'NaN'; }
       return 'Hello ' + times + ' times';
@@ -337,14 +337,14 @@ describe('helpers', function() {
 
   describe('multiple parameters', function() {
     it('simple multi-params work', function() {
-      var string = 'Message: {{goodbye cruel world}}';
+      var string = 'Message: <{{goodbye cruel world}}>';
       var hash = {cruel: 'cruel', world: 'world'};
       var helpers = {goodbye: function(cruel, world) { return 'Goodbye ' + cruel + ' ' + world; }};
       shouldCompileTo(string, [hash, helpers], 'Message: Goodbye cruel world', 'regular helpers with multiple params');
     });
 
     it('block multi-params work', function() {
-      var string = 'Message: {{#goodbye cruel world}}{{greeting}} {{adj}} {{noun}}{{/goodbye}}';
+      var string = 'Message: <{{#goodbye cruel world}}><{{greeting}}> <{{adj}}> <{{noun}}><{{/goodbye}}>';
       var hash = {cruel: 'cruel', world: 'world'};
       var helpers = {goodbye: function(cruel, world, options) {
         return options.fn({greeting: 'Goodbye', adj: cruel, noun: world});
@@ -355,7 +355,7 @@ describe('helpers', function() {
 
   describe('hash', function() {
     it('helpers can take an optional hash', function() {
-      var template = CompilerContext.compile('{{goodbye cruel="CRUEL" world="WORLD" times=12}}');
+      var template = CompilerContext.compile('<{{goodbye cruel="CRUEL" world="WORLD" times=12}}>');
 
       var helpers = {
         goodbye: function(options) {
@@ -384,17 +384,17 @@ describe('helpers', function() {
 
       var context = {};
 
-      var template = CompilerContext.compile('{{goodbye cruel="CRUEL" world="WORLD" print=true}}');
+      var template = CompilerContext.compile('<{{goodbye cruel="CRUEL" world="WORLD" print=true}}>');
       var result = template(context, {helpers: helpers});
       equals(result, 'GOODBYE CRUEL WORLD', 'Helper output hash');
 
-      template = CompilerContext.compile('{{goodbye cruel="CRUEL" world="WORLD" print=false}}');
+      template = CompilerContext.compile('<{{goodbye cruel="CRUEL" world="WORLD" print=false}}>');
       result = template(context, {helpers: helpers});
       equals(result, 'NOT PRINTING', 'Boolean helper parameter honored');
     });
 
     it('block helpers can take an optional hash', function() {
-      var template = CompilerContext.compile('{{#goodbye cruel="CRUEL" times=12}}world{{/goodbye}}');
+      var template = CompilerContext.compile('<{{#goodbye cruel="CRUEL" times=12}}>world<{{/goodbye}}>');
 
       var helpers = {
         goodbye: function(options) {
@@ -407,7 +407,7 @@ describe('helpers', function() {
     });
 
     it('block helpers can take an optional hash with single quoted stings', function() {
-      var template = CompilerContext.compile('{{#goodbye cruel="CRUEL" times=12}}world{{/goodbye}}');
+      var template = CompilerContext.compile('<{{#goodbye cruel="CRUEL" times=12}}>world<{{/goodbye}}>');
 
       var helpers = {
         goodbye: function(options) {
@@ -432,11 +432,11 @@ describe('helpers', function() {
         }
       };
 
-      var template = CompilerContext.compile('{{#goodbye cruel="CRUEL" print=true}}world{{/goodbye}}');
+      var template = CompilerContext.compile('<{{#goodbye cruel="CRUEL" print=true}}>world<{{/goodbye}}>');
       var result = template({}, {helpers: helpers});
       equals(result, 'GOODBYE CRUEL world', 'Boolean hash parameter honored');
 
-      template = CompilerContext.compile('{{#goodbye cruel="CRUEL" print=false}}world{{/goodbye}}');
+      template = CompilerContext.compile('<{{#goodbye cruel="CRUEL" print=false}}>world<{{/goodbye}}>');
       result = template({}, {helpers: helpers});
       equals(result, 'NOT PRINTING', 'Boolean hash parameter honored');
     });
@@ -445,13 +445,13 @@ describe('helpers', function() {
   describe('helperMissing', function() {
     it('if a context is not found, helperMissing is used', function() {
       shouldThrow(function() {
-          var template = CompilerContext.compile('{{hello}} {{link_to world}}');
+          var template = CompilerContext.compile('<{{hello}}> <{{link_to world}}>');
           template({});
       }, undefined, /Missing helper: "link_to"/);
     });
 
     it('if a context is not found, custom helperMissing is used', function() {
-      var string = '{{hello}} {{link_to world}}';
+      var string = '<{{hello}}> <{{link_to world}}>';
       var context = { hello: 'Hello', world: 'world' };
 
       var helpers = {
@@ -466,7 +466,7 @@ describe('helpers', function() {
     });
 
     it('if a value is not found, custom helperMissing is used', function() {
-      var string = '{{hello}} {{link_to}}';
+      var string = '<{{hello}}> <{{link_to}}>';
       var context = { hello: 'Hello', world: 'world' };
 
       var helpers = {
@@ -483,62 +483,62 @@ describe('helpers', function() {
 
   describe('knownHelpers', function() {
     it('Known helper should render helper', function() {
-      var template = CompilerContext.compile('{{hello}}', {knownHelpers: {hello: true}});
+      var template = CompilerContext.compile('<{{hello}}>', {knownHelpers: {hello: true}});
 
       var result = template({}, {helpers: {hello: function() { return 'foo'; }}});
       equal(result, 'foo', "'foo' should === '" + result);
     });
 
     it('Unknown helper in knownHelpers only mode should be passed as undefined', function() {
-      var template = CompilerContext.compile('{{typeof hello}}', {knownHelpers: {'typeof': true}, knownHelpersOnly: true});
+      var template = CompilerContext.compile('<{{typeof hello}}>', {knownHelpers: {'typeof': true}, knownHelpersOnly: true});
 
       var result = template({}, {helpers: {'typeof': function(arg) { return typeof arg; }, hello: function() { return 'foo'; }}});
       equal(result, 'undefined', "'undefined' should === '" + result);
     });
     it('Builtin helpers available in knownHelpers only mode', function() {
-      var template = CompilerContext.compile('{{#unless foo}}bar{{/unless}}', {knownHelpersOnly: true});
+      var template = CompilerContext.compile('<{{#unless foo}}>bar<{{/unless}}>', {knownHelpersOnly: true});
 
       var result = template({});
       equal(result, 'bar', "'bar' should === '" + result);
     });
     it('Field lookup works in knownHelpers only mode', function() {
-      var template = CompilerContext.compile('{{foo}}', {knownHelpersOnly: true});
+      var template = CompilerContext.compile('<{{foo}}>', {knownHelpersOnly: true});
 
       var result = template({foo: 'bar'});
       equal(result, 'bar', "'bar' should === '" + result);
     });
     it('Conditional blocks work in knownHelpers only mode', function() {
-      var template = CompilerContext.compile('{{#foo}}bar{{/foo}}', {knownHelpersOnly: true});
+      var template = CompilerContext.compile('<{{#foo}}>bar<{{/foo}}>', {knownHelpersOnly: true});
 
       var result = template({foo: 'baz'});
       equal(result, 'bar', "'bar' should === '" + result);
     });
     it('Invert blocks work in knownHelpers only mode', function() {
-      var template = CompilerContext.compile('{{^foo}}bar{{/foo}}', {knownHelpersOnly: true});
+      var template = CompilerContext.compile('<{{^foo}}>bar<{{/foo}}>', {knownHelpersOnly: true});
 
       var result = template({foo: false});
       equal(result, 'bar', "'bar' should === '" + result);
     });
     it('Functions are bound to the context in knownHelpers only mode', function() {
-      var template = CompilerContext.compile('{{foo}}', {knownHelpersOnly: true});
+      var template = CompilerContext.compile('<{{foo}}>', {knownHelpersOnly: true});
       var result = template({foo: function() { return this.bar; }, bar: 'bar'});
       equal(result, 'bar', "'bar' should === '" + result);
     });
     it('Unknown helper call in knownHelpers only mode should throw', function() {
       shouldThrow(function() {
-        CompilerContext.compile('{{typeof hello}}', {knownHelpersOnly: true});
+        CompilerContext.compile('<{{typeof hello}}>', {knownHelpersOnly: true});
       }, Error);
     });
   });
 
   describe('blockHelperMissing', function() {
     it('lambdas are resolved by blockHelperMissing, not handlebars proper', function() {
-      var string = '{{#truthy}}yep{{/truthy}}';
+      var string = '<{{#truthy}}>yep<{{/truthy}}>';
       var data = { truthy: function() { return true; } };
       shouldCompileTo(string, data, 'yep');
     });
     it('lambdas resolved by blockHelperMissing are bound to the context', function() {
-      var string = '{{#truthy}}yep{{/truthy}}';
+      var string = '<{{#truthy}}>yep<{{/truthy}}>';
       var boundData = { truthy: function() { return this.truthiness(); }, truthiness: function() { return false; } };
       shouldCompileTo(string, boundData, '');
     });
@@ -559,38 +559,38 @@ describe('helpers', function() {
     };
 
     it('should include in ambiguous mustache calls', function() {
-      shouldCompileTo('{{helper}}', [context, helpers], 'ran: helper');
+      shouldCompileTo('<{{helper}}>', [context, helpers], 'ran: helper');
     });
     it('should include in helper mustache calls', function() {
-      shouldCompileTo('{{helper 1}}', [context, helpers], 'ran: helper');
+      shouldCompileTo('<{{helper 1}}>', [context, helpers], 'ran: helper');
     });
     it('should include in ambiguous block calls', function() {
-      shouldCompileTo('{{#helper}}{{/helper}}', [context, helpers], 'ran: helper');
+      shouldCompileTo('<{{#helper}}><{{/helper}}>', [context, helpers], 'ran: helper');
     });
     it('should include in simple block calls', function() {
-      shouldCompileTo('{{#./helper}}{{/./helper}}', [context, helpers], 'missing: ./helper');
+      shouldCompileTo('<{{#./helper}}><{{/./helper}}>', [context, helpers], 'missing: ./helper');
     });
     it('should include in helper block calls', function() {
-      shouldCompileTo('{{#helper 1}}{{/helper}}', [context, helpers], 'ran: helper');
+      shouldCompileTo('<{{#helper 1}}><{{/helper}}>', [context, helpers], 'ran: helper');
     });
     it('should include in known helper calls', function() {
-      var template = CompilerContext.compile('{{helper}}', {knownHelpers: {'helper': true}, knownHelpersOnly: true});
+      var template = CompilerContext.compile('<{{helper}}>', {knownHelpers: {'helper': true}, knownHelpersOnly: true});
 
       equal(template({}, {helpers: helpers}), 'ran: helper');
     });
 
     it('should include full id', function() {
-      shouldCompileTo('{{#foo.helper}}{{/foo.helper}}', [{foo: {}}, helpers], 'missing: foo.helper');
+      shouldCompileTo('<{{#foo.helper}}><{{/foo.helper}}>', [{foo: {}}, helpers], 'missing: foo.helper');
     });
 
     it('should include full id if a hash is passed', function() {
-      shouldCompileTo('{{#foo.helper bar=baz}}{{/foo.helper}}', [{foo: {}}, helpers], 'helper missing: foo.helper');
+      shouldCompileTo('<{{#foo.helper bar=baz}}><{{/foo.helper}}>', [{foo: {}}, helpers], 'helper missing: foo.helper');
     });
   });
 
   describe('name conflicts', function() {
     it('helpers take precedence over same-named context properties', function() {
-      var template = CompilerContext.compile('{{goodbye}} {{cruel world}}');
+      var template = CompilerContext.compile('<{{goodbye}}> <{{cruel world}}>');
 
       var helpers = {
         goodbye: function() {
@@ -612,7 +612,7 @@ describe('helpers', function() {
     });
 
     it('helpers take precedence over same-named context properties$', function() {
-      var template = CompilerContext.compile('{{#goodbye}} {{cruel world}}{{/goodbye}}');
+      var template = CompilerContext.compile('<{{#goodbye}}> <{{cruel world}}><{{/goodbye}}>');
 
       var helpers = {
         goodbye: function(options) {
@@ -634,7 +634,7 @@ describe('helpers', function() {
     });
 
     it('Scoped names take precedence over helpers', function() {
-      var template = CompilerContext.compile('{{this.goodbye}} {{cruel world}} {{cruel this.goodbye}}');
+      var template = CompilerContext.compile('<{{this.goodbye}}> <{{cruel world}}> <{{cruel this.goodbye}}>');
 
       var helpers = {
         goodbye: function() {
@@ -656,7 +656,7 @@ describe('helpers', function() {
     });
 
     it('Scoped names take precedence over block helpers', function() {
-      var template = CompilerContext.compile('{{#goodbye}} {{cruel world}}{{/goodbye}} {{this.goodbye}}');
+      var template = CompilerContext.compile('<{{#goodbye}}> <{{cruel world}}><{{/goodbye}}> <{{this.goodbye}}>');
 
       var helpers = {
         goodbye: function(options) {
@@ -687,7 +687,7 @@ describe('helpers', function() {
           return options.fn({value: 'bar'}, {blockParams: [1, 2]});
         }
       };
-      shouldCompileTo('{{#goodbyes as |value|}}{{value}}{{/goodbyes}}{{value}}', [hash, helpers], '1foo');
+      shouldCompileTo('<{{#goodbyes as |value|}}><{{value}}><{{/goodbyes}}><{{value}}>', [hash, helpers], '1foo');
     });
     it('should take presedence over helper values', function() {
       var hash = {};
@@ -700,7 +700,7 @@ describe('helpers', function() {
           return options.fn({}, {blockParams: [1, 2]});
         }
       };
-      shouldCompileTo('{{#goodbyes as |value|}}{{value}}{{/goodbyes}}{{value}}', [hash, helpers], '1foo');
+      shouldCompileTo('<{{#goodbyes as |value|}}><{{value}}><{{/goodbyes}}><{{value}}>', [hash, helpers], '1foo');
     });
     it('should not take presedence over pathed values', function() {
       var hash = {value: 'bar'};
@@ -713,7 +713,7 @@ describe('helpers', function() {
           return options.fn(this, {blockParams: [1, 2]});
         }
       };
-      shouldCompileTo('{{#goodbyes as |value|}}{{./value}}{{/goodbyes}}{{value}}', [hash, helpers], 'barfoo');
+      shouldCompileTo('<{{#goodbyes as |value|}}><{{./value}}><{{/goodbyes}}><{{value}}>', [hash, helpers], 'barfoo');
     });
     it('should take presednece over parent block params', function() {
       var hash = {value: 'foo'},
@@ -723,7 +723,7 @@ describe('helpers', function() {
           return options.fn({value: 'bar'}, {blockParams: options.fn.blockParams === 1 ? [value++, value++] : undefined});
         }
       };
-      shouldCompileTo('{{#goodbyes as |value|}}{{#goodbyes}}{{value}}{{#goodbyes as |value|}}{{value}}{{/goodbyes}}{{/goodbyes}}{{/goodbyes}}{{value}}', [hash, helpers], '13foo');
+      shouldCompileTo('<{{#goodbyes as |value|}}><{{#goodbyes}}><{{value}}><{{#goodbyes as |value|}}><{{value}}><{{/goodbyes}}><{{/goodbyes}}><{{/goodbyes}}><{{value}}>', [hash, helpers], '13foo');
     });
 
     it('should allow block params on chained helpers', function() {
@@ -734,7 +734,7 @@ describe('helpers', function() {
           return options.fn({value: 'bar'}, {blockParams: [1, 2]});
         }
       };
-      shouldCompileTo('{{#if bar}}{{else goodbyes as |value|}}{{value}}{{/if}}{{value}}', [hash, helpers], '1foo');
+      shouldCompileTo('<{{#if bar}}><{{else goodbyes as |value|}}><{{value}}><{{/if}}><{{value}}>', [hash, helpers], '1foo');
     });
   });
 });
