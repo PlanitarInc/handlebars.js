@@ -1,6 +1,17 @@
 [![Travis Build Status](https://img.shields.io/travis/wycats/handlebars.js/master.svg)](https://travis-ci.org/wycats/handlebars.js)
 [![Selenium Test Status](https://saucelabs.com/buildstatus/handlebars)](https://saucelabs.com/u/handlebars)
 
+## ========================================================
+
+### THIS IS A FORK OF
+[wycats/handlebars.js](https://github.com/wycats/handlebars.js)
+
+The only difference is the delimiters `<{{` and `}}>` instead of
+`{{` and `}}` respectively.
+
+## ========================================================
+
+
 Handlebars.js
 =============
 
